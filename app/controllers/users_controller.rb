@@ -1,5 +1,5 @@
 class UsersController < ApplicationController
-  before_filter :signed_in_user, only: [:index, :edit, :update, :destroy]
+  before_filter :signed_in_user, only: [:index, :edit, :update, :destroy, :following, :followers]
   before_filter :correct_user,   only: [:edit, :update]
   before_filter :admin_user,     only: :destroy
 
@@ -11,9 +11,11 @@ class UsersController < ApplicationController
   def new
   	@user = User.new
   end
+
   def index
     @users = User.paginate(page: params[:page])
   end
+
   def create
     @user = User.new(params[:user])
     if @user.save
@@ -26,6 +28,20 @@ class UsersController < ApplicationController
     end
     end
     def edit
+    end
+
+    def following
+    @title = "Following"
+    @user = User.find(params[:id])
+    @users = @user.followed_users.paginate(page: params[:page])
+    render 'show_follow'
+    end
+
+    def followers
+    @title = "Followers"
+    @user = User.find(params[:id])
+    @users = @user.followers.paginate(page: params[:page])
+    render 'show_follow'
     end
 
    def update
@@ -42,6 +58,7 @@ class UsersController < ApplicationController
     flash[:success] = "User destroyed."
     redirect_to users_url
   end
+
   private
     def correct_user
       @user = User.find(params[:id])
